@@ -1,4 +1,5 @@
 scrapy
+ipython
 requests
 beautifulsoup4
 lxml
