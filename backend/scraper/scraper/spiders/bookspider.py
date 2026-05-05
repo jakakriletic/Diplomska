@@ -43,7 +43,7 @@ class BookspiderSpider(scrapy.Spider):
             'description' : response.xpath("//div[@id='product_description']/following-sibling::p/text()").get(),
             'price' : response.css('p.price_color ::text').get(),
         }
-        book_item = BookItem()
+        book_item = book_item()
         
         book_item['url'] = response.url,
         book_item['title']= response.css('.product_main h1::text').get(),
@@ -58,4 +58,4 @@ class BookspiderSpider(scrapy.Spider):
         book_item['description'] = response.xpath("//div[@id='product_description']/following-sibling::p/text()").get(),
         book_item['price'] = response.css('p.price_color ::text').get(),
         
-        yield BookItem
+        yield book_item
