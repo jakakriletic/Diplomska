@@ -10,6 +10,17 @@ from itemadapter import ItemAdapter
 
 class ScraperPipeline:
     def process_item(self, item, spider):
+        return item
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        '''
         adapter = ItemAdapter(item)
 
         field_names = adapter.field_names()
@@ -57,3 +68,4 @@ class ScraperPipeline:
             adapter["stars"] = 5
             
         return item
+'''
