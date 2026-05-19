@@ -6,13 +6,21 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
-
+import w3lib.html
 
 class ScraperPipeline:
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
+        field_names = adapter.field_names()
         
-        return adapter
+        for field_name in field_names:
+            value = adapter.get(field_name)
+            
+            if isinstance(value, str):
+                adapter[field_name] = w3lib.html.remove_tags(value).strip()
+                adapter[field_name] = adapter[field_name].replace("\n", "")
+                adapter[field_name] = " ".join(adapter[field_name].split())
+        return item
         
         
         

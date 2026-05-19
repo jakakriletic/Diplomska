@@ -1,11 +1,11 @@
 import scrapy
 from urllib.parse import urlparse
-
+from .keywords import KEYWORDS
 
 class TestSpider(scrapy.Spider):
     name = "test"
-    allowed_domains = ["quotes.toscrape.com"]
-    start_urls = ["https://quotes.toscrape.com/"]
+    allowed_domains = ["fei.uni-nm.si"]
+    start_urls = ["https://fei.uni-nm.si/"]
     
     blocked_domains = [
     "facebook.com",
@@ -31,6 +31,8 @@ class TestSpider(scrapy.Spider):
 
         for link in links:
             full_url = response.urljoin(link)
+            if not self.whitelist(full_url):
+                continue
             if self.blacklist(full_url):
                 continue
             yield scrapy.Request(full_url, callback=self.parse_detail, meta={"depth_level": 1})
@@ -47,10 +49,18 @@ class TestSpider(scrapy.Spider):
                  links = response.xpath("//a/@href").getall()
                  for link in links:
                       full_url = response.urljoin(link)
-                      if self.blacklist(full_url):
+                      if self.blacklist(full_url):      
+                          continue
+                      if not self.whitelist(full_url):
                           continue
                       yield scrapy.Request(full_url, callback=self.parse_detail, meta={"depth_level": depth + 1})
-                      
+            
+    def whitelist(self, url):
+        url_lowercase = url.lower()
+        if any(keyword in url_lowercase for keyword in KEYWORDS):
+            return True
+        return False 
+                  
     def blacklist(self, url):
         parsed = urlparse(url)
         domain = parsed.netloc.lower()
@@ -60,9 +70,11 @@ class TestSpider(scrapy.Spider):
             return True
         if path.endswith(tuple(self.blocked_extensions)):
             return True 
+        
         for blocked in self.blocked_domains:
             if domain == blocked or domain.endswith("." + blocked):
                 return True
 
         return False
-            
+        
+        
