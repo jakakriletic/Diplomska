@@ -19,3 +19,4 @@ sentence-transformers
 chromadb
 numpy
 scikit-learn
+langchain-experimental
