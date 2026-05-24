@@ -6,24 +6,48 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
-import w3lib.html
+from bs4 import BeautifulSoup
 
 class ScraperPipeline:
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
-        field_names = adapter.field_names()
+        html = adapter.get("html")
         
-        for field_name in field_names:
-            value = adapter.get(field_name)
-            
-            if isinstance(value, str):
-                adapter[field_name] = w3lib.html.remove_tags(value).strip()
-                adapter[field_name] = adapter[field_name].replace("\n", "")
-                adapter[field_name] = " ".join(adapter[field_name].split())
+        element_key_words = [
+    "cookie", "cookies", "cookienotice", "cookie-notice", "cookieconsent", "cookie-consent", "cookiebanner", "cookie-banner", "cookiebar", "cookie-bar",
+    "piškot", "piškotek", "piškotki", "piskot", "piskotek", "piskotki", "gdpr", "consent", "copyright", "piškotki", 
+    "search", "search-form", "searchbox", "search-box", "iskanje", "login", "signin", "sign-in", "register", "registration",
+    "prijava", "registracija", "newsletter", "subscribe", "subscription", "social", "socials", "social-links", "share", "sharing",
+    "facebook", "instagram", "linkedin", "twitter", "youtube", "tiktok", "tracking", "analytics", "gtm", "google-analytics",
+    "googletagmanager", "fb-pixel", "pixel", "modal", "popup", "pop-up", "overlay"
+]
+
+        if isinstance(html, str):
+            soup = BeautifulSoup(html, "html.parser")
+            for element_type in soup(['style', 'script', 'noscript', 'svg', 'iframe', 'nav', 'header', 'footer', 'aside', 'form']):
+                element_type.decompose()
+
+            array_to_delete = []
+            for element in soup.find_all(True):
+                element_id = element.get("id", "")
+                element_class = " ".join(element.get("class", []))
+
+                joined = f"{element_id} {element_class}".lower()
+
+                if any(find in joined for find in element_key_words):
+                    array_to_delete.append(element)
+
+            for element in array_to_delete:
+                element.decompose()
+
+            adapter["html"] = ' '.join(soup.stripped_strings)
+
         return item
         
         
         
+
+
         
         
         

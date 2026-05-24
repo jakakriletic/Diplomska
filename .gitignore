@@ -17,6 +17,9 @@ venv/
 env/
 ENV/
 .env/
+**/.env
+.env
+*.env
 .venv/
 
 # Unit test / coverage reports
